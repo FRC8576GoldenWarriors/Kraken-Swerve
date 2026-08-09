@@ -4,6 +4,8 @@ import choreo.Choreo.TrajectoryLogger;
 import choreo.auto.AutoFactory;
 import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.util.AllianceUtil;
 import frc.robot.util.LoggedAutoChooser;
@@ -40,5 +42,11 @@ public class Autos {
             AutosConstants.USE_ALLIANCE_AUTOMATIC_FLIPPING,
             swerve,
             trajectoryLogger);
+
+    CommandScheduler.getInstance().schedule(autoFactory.warmupCmd());
+  }
+
+  public Command getAutonomousCommand() {
+    return loggedAutoChooser.selectedCommand();
   }
 }

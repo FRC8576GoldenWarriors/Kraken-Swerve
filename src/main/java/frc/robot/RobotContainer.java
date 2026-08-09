@@ -54,6 +54,13 @@ public class RobotContainer {
             Commands.runOnce(() -> swerve.setWantedState(WantedState.TELEOP))
                 .withName("Drive Teleop"));
 
+    RobotModeTriggers.autonomous()
+        .and(() -> swerve.getWantedState() == WantedState.IDLE)
+        .onTrue(
+            Commands.runOnce(() -> swerve.setWantedState(WantedState.AUTO))
+                .withName("Auto Driving"))
+        .onFalse(Commands.runOnce(() -> swerve.setWantedState(WantedState.IDLE)));
+
     if (SwerveConstants.USE_SYS_ID_MODE) {
       controller
           .back()

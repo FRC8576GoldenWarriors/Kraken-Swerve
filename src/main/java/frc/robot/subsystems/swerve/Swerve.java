@@ -17,7 +17,6 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
@@ -330,10 +329,16 @@ public class Swerve extends SubsystemBase {
     double swerveSampleTimeStamp = wantedSwerveSample.getTimestamp();
 
     Logger.recordOutput(AutosConstants.CHOREO_LOG_PATH + "SwerveSamplePose", wantedPose);
-    Logger.recordOutput(AutosConstants.CHOREO_LOG_PATH + "SwerveSampleChassisSpeedsRaw", targetSpeeds);
-    Logger.recordOutput(AutosConstants.CHOREO_LOG_PATH + "SwerveSampleTimestamp", swerveSampleTimeStamp);
-    Logger.recordOutput(AutosConstants.CHOREO_LOG_PATH + "SwerveSampleWheelForceFeedforwardsX", wantedSwerveSample.moduleForcesX());
-    Logger.recordOutput(AutosConstants.CHOREO_LOG_PATH + "SwerveSampleWheelForceFeedforwardsY", wantedSwerveSample.moduleForcesY());
+    Logger.recordOutput(
+        AutosConstants.CHOREO_LOG_PATH + "SwerveSampleChassisSpeedsRaw", targetSpeeds);
+    Logger.recordOutput(
+        AutosConstants.CHOREO_LOG_PATH + "SwerveSampleTimestamp", swerveSampleTimeStamp);
+    Logger.recordOutput(
+        AutosConstants.CHOREO_LOG_PATH + "SwerveSampleWheelForceFeedforwardsX",
+        wantedSwerveSample.moduleForcesX());
+    Logger.recordOutput(
+        AutosConstants.CHOREO_LOG_PATH + "SwerveSampleWheelForceFeedforwardsY",
+        wantedSwerveSample.moduleForcesY());
 
     targetSpeeds.vxMetersPerSecond +=
         choreoXController.calculate(currentPose.getX(), wantedPose.getX(), swerveSampleTimeStamp);
@@ -343,8 +348,8 @@ public class Swerve extends SubsystemBase {
         choreoThetaController.calculate(
             currentPose.getRotation().getRadians(), wantedPose.getRotation().getRadians());
 
-    Logger.recordOutput(AutosConstants.CHOREO_LOG_PATH + "SwerveSampleChassisSpeedsWithPID", targetSpeeds);
-
+    Logger.recordOutput(
+        AutosConstants.CHOREO_LOG_PATH + "SwerveSampleChassisSpeedsWithPID", targetSpeeds);
 
     io.setSwerveState(
         autoRequest
@@ -395,7 +400,6 @@ public class Swerve extends SubsystemBase {
 
   public void setWantedSwerveSample(SwerveSample swerveSample) {
     this.wantedSwerveSample = swerveSample;
-    setWantedState(WantedState.AUTO);
   }
 
   public void zeroHeading() {
