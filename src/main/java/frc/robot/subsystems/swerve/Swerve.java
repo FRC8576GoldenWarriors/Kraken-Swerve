@@ -233,6 +233,10 @@ public class Swerve extends SubsystemBase {
           SwerveConstants.LOG_PATH + SwerveConstants.MODULE_NAMES[i] + "Module", moduleInputs[i]);
     }
 
+    if (wantedState == WantedState.AUTO && systemState != SystemState.AUTO_DRIVING) {
+      resetRotationPID();
+    }
+
     systemState = handleStateTransition();
 
     Logger.recordOutput(SwerveConstants.LOG_PATH + "WantedState", wantedState);
@@ -311,6 +315,11 @@ public class Swerve extends SubsystemBase {
         updatedLoggedValues[3], updatedLoggedValues[4], updatedLoggedValues[5]);
     choreoThetaController.setPID(
         updatedLoggedValues[6], updatedLoggedValues[7], updatedLoggedValues[8]);
+  }
+
+  private void resetRotationPID() {
+    choreoThetaController.reset(
+        swerveInputs.Pose.getRotation().getRadians(), swerveInputs.Speeds.omegaRadiansPerSecond);
   }
 
   // Apply States Methods

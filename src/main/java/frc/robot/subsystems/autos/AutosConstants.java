@@ -3,7 +3,7 @@ package frc.robot.subsystems.autos;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.util.LoggedTunableNumber;
 
@@ -36,8 +36,8 @@ public class AutosConstants {
       new LoggedTunableNumber(CHOREO_TUNING_PATH + "KI", 0, SwerveConstants.USE_TUNING_MODE);
   public static final LoggedTunableNumber CHOREO_THETA_LOGGED_KD =
       new LoggedTunableNumber(CHOREO_TUNING_PATH + "KD", 0, SwerveConstants.USE_TUNING_MODE);
-  public static final Constraints CHOREO_THETA_CONSTRAINTS =
-      new Constraints(
+  public static final TrapezoidProfile.Constraints CHOREO_THETA_CONSTRAINTS =
+      new TrapezoidProfile.Constraints(
           SwerveConstants.MAX_ANGULAR_VELOCITY.in(RadiansPerSecond),
           SwerveConstants.MAX_ANGULAR_ACCELERATION.in(RadiansPerSecondPerSecond));
 }
