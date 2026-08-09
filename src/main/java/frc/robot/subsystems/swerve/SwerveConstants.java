@@ -4,10 +4,12 @@ import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
+import choreo.trajectory.SwerveSample;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import edu.wpi.first.math.Matrix;
@@ -17,6 +19,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.VoltageUnit;
+import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Frequency;
@@ -48,8 +51,13 @@ public class SwerveConstants {
       RadiansPerSecond.of(
           TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / DRIVE_BASE_RADIUS.in(Meters));
 
+  public static final AngularAcceleration MAX_ANGULAR_ACCELERATION =
+      RadiansPerSecondPerSecond.of(69);
+
   public static final ChassisSpeeds ZERO_ROBOT_CHASSIS_SPEEDS = new ChassisSpeeds();
   public static final ChassisSpeeds TAXI_FIELD_CHASSIS_SPEEDS = new ChassisSpeeds(0.5, 0, 0);
+  public static final SwerveSample ZERO_ROBOT_SWERVE_SAMPLE =
+      new SwerveSample(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, new double[4], new double[4]);
 
   public static final Rotation2d BLUE_PERSPECTIVE_ROTATION = Rotation2d.kZero;
   public static final Rotation2d RED_PERSPECTIVE_ROTATION = Rotation2d.k180deg;

@@ -9,10 +9,15 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Volts;
 
+import choreo.trajectory.SwerveSample;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.ctre.phoenix6.swerve.utility.PhoenixPIDController;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
@@ -24,6 +29,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.autos.AutosConstants;
+import frc.robot.util.LoggedTunableNumber;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import org.littletonrobotics.junction.Logger;
@@ -51,6 +58,7 @@ public class Swerve extends SubsystemBase {
     WHEEL_LOCK_WITH_X,
     IDLE,
     TAXI,
+    AUTO,
     SYS_ID_TRANSLATION,
     SYS_ID_STEER,
     SYS_ID_ROTATION,
@@ -59,6 +67,7 @@ public class Swerve extends SubsystemBase {
 
   private enum SystemState {
     TELOP_DRIVING,
+    AUTO_DRIVING,
     ROTATION_LOCKING,
     WHEEL_LOCKING_WITH_X,
     IDLING,
@@ -76,12 +85,20 @@ public class Swerve extends SubsystemBase {
 
   private Rotation2d wantedRotationLockRotation = new Rotation2d();
 
+  private SwerveSample wantedSwerveSample = SwerveConstants.ZERO_ROBOT_SWERVE_SAMPLE;
+
   private WantedState wantedState = WantedState.IDLE;
   private SystemState systemState = SystemState.IDLING;
 
   private boolean hasAppliedOperatorPerspective = false;
 
   private final SwerveRequest.ApplyFieldSpeeds teleopRequest =
+      new SwerveRequest.ApplyFieldSpeeds()
+          .withDesaturateWheelSpeeds(SwerveConstants.DESATURATE_WHEEL_SPEEDS)
+          .withDriveRequestType(SwerveConstants.DRIVE_REQUEST_TYPE)
+          .withSteerRequestType(SwerveConstants.STEER_REQUEST_TYPE);
+
+  private final SwerveRequest.ApplyFieldSpeeds autoRequest =
       new SwerveRequest.ApplyFieldSpeeds()
           .withDesaturateWheelSpeeds(SwerveConstants.DESATURATE_WHEEL_SPEEDS)
           .withDriveRequestType(SwerveConstants.DRIVE_REQUEST_TYPE)
@@ -107,6 +124,12 @@ public class Swerve extends SubsystemBase {
   private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization =
       new SwerveRequest.SysIdSwerveRotation();
 
+  private final PhoenixPIDController choreoXController;
+
+  private final PhoenixPIDController choreoYController;
+
+  private final ProfiledPIDController choreoThetaController;
+
   private final SysIdRoutine m_sysIdRoutineTranslation;
 
   private final SysIdRoutine m_sysIdRoutineSteer;
@@ -115,6 +138,38 @@ public class Swerve extends SubsystemBase {
 
   public Swerve(SwerveIO io) {
     this.io = io;
+
+    this.choreoXController =
+        new PhoenixPIDController(
+            AutosConstants.CHOREO_X_LOGGED_KP.get(),
+            AutosConstants.CHOREO_X_LOGGED_KI.get(),
+            AutosConstants.CHOREO_X_LOGGED_KD.get());
+    this.choreoYController =
+        new PhoenixPIDController(
+            AutosConstants.CHOREO_Y_LOGGED_KP.get(),
+            AutosConstants.CHOREO_Y_LOGGED_KI.get(),
+            AutosConstants.CHOREO_Y_LOGGED_KD.get());
+    this.choreoThetaController =
+        new ProfiledPIDController(
+            AutosConstants.CHOREO_THETA_LOGGED_KP.get(),
+            AutosConstants.CHOREO_THETA_LOGGED_KI.get(),
+            AutosConstants.CHOREO_THETA_LOGGED_KD.get(),
+            AutosConstants.CHOREO_THETA_CONSTRAINTS);
+
+    this.choreoThetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        this::updateChoreoPIDControllers,
+        AutosConstants.CHOREO_X_LOGGED_KP,
+        AutosConstants.CHOREO_X_LOGGED_KI,
+        AutosConstants.CHOREO_X_LOGGED_KD,
+        AutosConstants.CHOREO_Y_LOGGED_KP,
+        AutosConstants.CHOREO_Y_LOGGED_KI,
+        AutosConstants.CHOREO_Y_LOGGED_KD,
+        AutosConstants.CHOREO_THETA_LOGGED_KP,
+        AutosConstants.CHOREO_THETA_LOGGED_KI,
+        AutosConstants.CHOREO_THETA_LOGGED_KD);
 
     this.m_sysIdRoutineTranslation =
         new SysIdRoutine(
@@ -199,6 +254,8 @@ public class Swerve extends SubsystemBase {
     return switch (wantedState) {
       case TELEOP -> SystemState.TELOP_DRIVING;
 
+      case AUTO -> SystemState.AUTO_DRIVING;
+
       case ROTATION_LOCK -> SystemState.ROTATION_LOCKING;
 
       case WHEEL_LOCK_WITH_X -> SystemState.WHEEL_LOCKING_WITH_X;
@@ -217,6 +274,8 @@ public class Swerve extends SubsystemBase {
   private void applyStates() {
     switch (systemState) {
       case TELOP_DRIVING -> teleopDriving();
+
+      case AUTO_DRIVING -> autoDriving();
 
       case ROTATION_LOCKING -> rotationLocking();
 
@@ -246,12 +305,52 @@ public class Swerve extends SubsystemBase {
     }
   }
 
+  private void updateChoreoPIDControllers(double[] updatedLoggedValues) {
+    choreoXController.setPID(
+        updatedLoggedValues[0], updatedLoggedValues[1], updatedLoggedValues[2]);
+    choreoYController.setPID(
+        updatedLoggedValues[3], updatedLoggedValues[4], updatedLoggedValues[5]);
+    choreoThetaController.setPID(
+        updatedLoggedValues[6], updatedLoggedValues[7], updatedLoggedValues[8]);
+  }
+
   // Apply States Methods
   private void teleopDriving() {
     wantedChassisSpeeds =
         getChassisSpeedsFromControllerInput(xController, yController, omegaController);
 
     io.setSwerveState(teleopRequest.withSpeeds(wantedChassisSpeeds));
+  }
+
+  private void autoDriving() {
+    Pose2d currentPose = getPose();
+
+    Pose2d wantedPose = wantedSwerveSample.getPose();
+    ChassisSpeeds targetSpeeds = wantedSwerveSample.getChassisSpeeds();
+    double swerveSampleTimeStamp = wantedSwerveSample.getTimestamp();
+
+    Logger.recordOutput(AutosConstants.CHOREO_LOG_PATH + "SwerveSamplePose", wantedPose);
+    Logger.recordOutput(AutosConstants.CHOREO_LOG_PATH + "SwerveSampleChassisSpeedsRaw", targetSpeeds);
+    Logger.recordOutput(AutosConstants.CHOREO_LOG_PATH + "SwerveSampleTimestamp", swerveSampleTimeStamp);
+    Logger.recordOutput(AutosConstants.CHOREO_LOG_PATH + "SwerveSampleWheelForceFeedforwardsX", wantedSwerveSample.moduleForcesX());
+    Logger.recordOutput(AutosConstants.CHOREO_LOG_PATH + "SwerveSampleWheelForceFeedforwardsY", wantedSwerveSample.moduleForcesY());
+
+    targetSpeeds.vxMetersPerSecond +=
+        choreoXController.calculate(currentPose.getX(), wantedPose.getX(), swerveSampleTimeStamp);
+    targetSpeeds.vyMetersPerSecond +=
+        choreoYController.calculate(currentPose.getY(), wantedPose.getY(), swerveSampleTimeStamp);
+    targetSpeeds.omegaRadiansPerSecond +=
+        choreoThetaController.calculate(
+            currentPose.getRotation().getRadians(), wantedPose.getRotation().getRadians());
+
+    Logger.recordOutput(AutosConstants.CHOREO_LOG_PATH + "SwerveSampleChassisSpeedsWithPID", targetSpeeds);
+
+
+    io.setSwerveState(
+        autoRequest
+            .withSpeeds(targetSpeeds)
+            .withWheelForceFeedforwardsX(wantedSwerveSample.moduleForcesX())
+            .withWheelForceFeedforwardsY(wantedSwerveSample.moduleForcesY()));
   }
 
   private void rotationLocking() {
@@ -294,8 +393,21 @@ public class Swerve extends SubsystemBase {
     setWantedState(WantedState.ROTATION_LOCK);
   }
 
+  public void setWantedSwerveSample(SwerveSample swerveSample) {
+    this.wantedSwerveSample = swerveSample;
+    setWantedState(WantedState.AUTO);
+  }
+
   public void zeroHeading() {
     io.resetRotation();
+  }
+
+  public void resetOdometry(Pose2d pose) {
+    io.resetOdometry(pose);
+  }
+
+  public Pose2d getPose() {
+    return swerveInputs.Pose;
   }
 
   public Command getDynamicForwardCommand() {
