@@ -1,5 +1,6 @@
 package frc.robot.subsystems.swerve;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
@@ -17,6 +18,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.VoltageUnit;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Frequency;
@@ -35,7 +37,7 @@ public class SwerveConstants {
   public static final String[] MODULE_NAMES = {"FrontLeft", "FrontRight", "BackLeft", "BackRight"};
 
   public static final Frequency FAST_UPDATE_FREQUENCY = Hertz.of(100);
-  public static final Frequency SLOW_UPDATE_FREQUENCY = Hertz.of(4);
+  public static final Frequency SLOW_UPDATE_FREQUENCY = Hertz.of(0);
   public static final Frequency OPTIMIZED_UPDATE_FREQUENCY = Hertz.of(0);
 
   // ==========================================
@@ -50,6 +52,18 @@ public class SwerveConstants {
 
   public static final ChassisSpeeds ZERO_ROBOT_CHASSIS_SPEEDS = new ChassisSpeeds();
   public static final ChassisSpeeds TAXI_FIELD_CHASSIS_SPEEDS = new ChassisSpeeds(0.5, 0, 0);
+
+  public static final Rotation2d[] MODULE_ROTATIONS_FOR_TRANSLATION = {
+    Rotation2d.kZero, Rotation2d.kZero, Rotation2d.kZero, Rotation2d.kZero
+  };
+
+  public static final Rotation2d[] MODULE_ROTATIONS_FOR_ROTATION = {
+    Rotation2d.fromDegrees(135),
+    Rotation2d.fromDegrees(45),
+    Rotation2d.fromDegrees(-135),
+    Rotation2d.fromDegrees(-45)
+  };
+  public static final Angle SETTING_MODULE_ROTATION_TOLERANCE = Degrees.of(0.25);
 
   public static final Rotation2d BLUE_PERSPECTIVE_ROTATION = Rotation2d.kZero;
   public static final Rotation2d RED_PERSPECTIVE_ROTATION = Rotation2d.k180deg;
@@ -66,9 +80,9 @@ public class SwerveConstants {
   // ==========================================
 
   // Steer Feedforward
-  public static final double STEER_KS = 0.1;
-  public static final double STEER_KV = 2.49;
-  public static final double STEER_KA = 0.0;
+  public static final double STEER_KS = 0.267735; // 0.1;
+  public static final double STEER_KV = 0.358655; // 2.49;
+  public static final double STEER_KA = 0.07247; // 0.0;
 
   // Steer PID
   public static final double STEER_KP = 12.5;
@@ -76,9 +90,9 @@ public class SwerveConstants {
   public static final double STEER_KD = 0.5;
 
   // Drive Feedforward
-  public static final double DRIVE_KS = 0;
-  public static final double DRIVE_KV = 0.124;
-  public static final double DRIVE_KA = 0;
+  public static final double DRIVE_KS = 0.10658325; // 0;
+  public static final double DRIVE_KV = 0.0029825; // 0.124;
+  public static final double DRIVE_KA = 0.0001885095; // 0;
 
   // Drive PID
   public static final double DRIVE_KP = 0.1;
@@ -88,7 +102,7 @@ public class SwerveConstants {
   // ==========================================
   // Driver Input & Deadband Settings
   // ==========================================
-  public static final double DEADBAND = 0.2;
+  public static final double DEADBAND = 0.05;
   public static final boolean SQUARE_INPUTS = true;
   public static final double SQUARE_VALUE = 2.0;
 
@@ -105,10 +119,10 @@ public class SwerveConstants {
 
   // ==========================================
   // SysId Characterization & Tuning Constants
-  // ==========================================
-  public static final boolean USE_SYS_ID_MODE = false;
-  public static final WantedState WANTED_SYS_ID_STATE = WantedState.SYS_ID_ROTATION;
-  public static final boolean USE_TUNING_MODE = false;
+  // =====================================
+  public static final boolean USE_SYS_ID_MODE = true;
+  public static final WantedState WANTED_SYS_ID_STATE = WantedState.SYS_ID_TRANSLATION;
+  public static final boolean USE_TUNING_MODE = true;
 
   // Translation
   public static final Velocity<VoltageUnit> SYS_ID_TRANSLATION_RAMP_RATE = Volts.of(1).per(Second);

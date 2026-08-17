@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.Percent;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,12 +71,16 @@ public class StatusSignalRefresher {
     failedSignalNames.clear();
     int totalAmountOfSignals = statusSignalArray.length;
     int failedSignalCount = 0;
+    int staleSignalCount = 0;
 
     for (int i = 0; i < totalAmountOfSignals; i++) {
       var signal = statusSignalArray[i];
       if (signal.getStatus().isError()) {
         failedSignalNames.add(signal.getName());
         failedSignalCount++;
+      }
+      if (signal.getStatus() == StatusCode.CanMessageStale) {
+        staleSignalCount++;
       }
     }
 
@@ -87,10 +92,16 @@ public class StatusSignalRefresher {
         logPath + "successfulSignalPercent",
         Percent.of((totalAmountOfSignals - failedSignalCount) / totalAmountOfSignals));
     Logger.recordOutput(
-        logPath + "failedSignalPercent", Percent.of(failedSignalCount / totalAmountOfSignals));
-    Logger.recordOutput(logPath + "failedSignalNames", failedSignalNames.toArray(new String[0]));
+        logPath + "failedSignalPercent",
+        Percent.of((double) failedSignalCount / totalAmountOfSignals));
+    Logger.recordOutput(
+        logPath + "failedSignalNames",
+        failedSignalNames.toArray(new String[failedSignalNames.size()]));
     Logger.recordOutput(logPath + "haveSignalsFailed", failedSignalCount > 0);
-
-    return failedSignalCount > 0;
+    Logger.recordOutput(logPath + "haveStaleSignalData", staleSignalCount > 0);
+    Logger.recordOutput(
+        logPath + "staleSignalPercent",
+        Percent.of((double) staleSignalCount / totalAmountOfSignals));
+    return failedSignalCount > 0 || staleSignalCount > 0;
   }
 }

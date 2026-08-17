@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.swerve;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
@@ -26,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.stream.IntStream;
 import org.littletonrobotics.junction.Logger;
 
 public class Swerve extends SubsystemBase {
@@ -51,6 +53,7 @@ public class Swerve extends SubsystemBase {
     WHEEL_LOCK_WITH_X,
     IDLE,
     TAXI,
+    SET_MODULE_ROTATIONS,
     SYS_ID_TRANSLATION,
     SYS_ID_STEER,
     SYS_ID_ROTATION,
@@ -63,6 +66,7 @@ public class Swerve extends SubsystemBase {
     WHEEL_LOCKING_WITH_X,
     IDLING,
     TAXIING,
+    SETTING_MODULE_ROTATIONS,
     SYS_ID
   }
 
@@ -75,6 +79,8 @@ public class Swerve extends SubsystemBase {
   private ChassisSpeeds wantedChassisSpeeds = SwerveConstants.ZERO_ROBOT_CHASSIS_SPEEDS;
 
   private Rotation2d wantedRotationLockRotation = new Rotation2d();
+
+  private Rotation2d[] wantedAbsoluteModuleRotations = new Rotation2d[4];
 
   private WantedState wantedState = WantedState.IDLE;
   private SystemState systemState = SystemState.IDLING;
@@ -97,6 +103,9 @@ public class Swerve extends SubsystemBase {
       new SwerveRequest.SwerveDriveBrake()
           .withDriveRequestType(SwerveConstants.DRIVE_REQUEST_TYPE)
           .withSteerRequestType(SwerveConstants.STEER_REQUEST_TYPE);
+
+  private final SetModuleRotationsAbsolute absoluteModuleRotationRequest =
+      new SetModuleRotationsAbsolute();
 
   private final SwerveRequest.Idle idleRequest = new SwerveRequest.Idle();
 
@@ -166,6 +175,7 @@ public class Swerve extends SubsystemBase {
   @Override
   public void periodic() {
 
+    // TODO: Check if this is actually doing what it's meant to do. SysID forward moves opposite the teleop forward direction
     applyOperatorForwardPerspective();
 
     io.updateInputs(swerveInputs, gyroInputs, moduleInputs);
@@ -205,6 +215,15 @@ public class Swerve extends SubsystemBase {
 
       case TAXI -> SystemState.TAXIING;
 
+      case SET_MODULE_ROTATIONS -> {
+        if (areModulesAtRotation()) {
+          setWantedState(WantedState.IDLE);
+          yield SystemState.IDLING;
+        }
+
+        yield SystemState.SETTING_MODULE_ROTATIONS;
+      }
+
       case SYS_ID_TRANSLATION, SYS_ID_STEER, SYS_ID_ROTATION, WHEEL_RADIUS_CHARACTERIZATION ->
           SystemState.SYS_ID;
 
@@ -223,6 +242,8 @@ public class Swerve extends SubsystemBase {
       case WHEEL_LOCKING_WITH_X -> wheelLockingWithX();
 
       case TAXIING -> taxiing();
+
+      case SETTING_MODULE_ROTATIONS -> settingModuleRotations();
 
       case SYS_ID -> {}
 
@@ -276,14 +297,13 @@ public class Swerve extends SubsystemBase {
     io.setSwerveState(teleopRequest.withSpeeds(SwerveConstants.TAXI_FIELD_CHASSIS_SPEEDS));
   }
 
+  private void settingModuleRotations() {
+    io.setSwerveState(
+        absoluteModuleRotationRequest.withModuleRotations(wantedAbsoluteModuleRotations));
+  }
+
   public void acceptControllerInput(
       double xController, double yController, double omegaController) {
-    // if (DriverStation.isTeleopEnabled()) {
-    //   if (wantedState != WantedState.ROTATION_LOCK
-    //       && wantedState != WantedState.WHEEL_LOCK_WITH_X) {
-    //     setWantedState(WantedState.TELEOP);
-    //   }
-    // }
     this.xController = xController;
     this.yController = yController;
     this.omegaController = omegaController;
@@ -294,8 +314,44 @@ public class Swerve extends SubsystemBase {
     setWantedState(WantedState.ROTATION_LOCK);
   }
 
+  public void setWantedAbsoluteModuleRotations(Rotation2d[] wantedAbsoluteRotations) {
+    this.wantedAbsoluteModuleRotations = wantedAbsoluteRotations;
+    setWantedState(WantedState.SET_MODULE_ROTATIONS);
+  }
+
   public void zeroHeading() {
     io.resetRotation();
+  }
+
+  public boolean isSettingModulePositions() {
+    return wantedState == WantedState.SET_MODULE_ROTATIONS
+        || systemState == SystemState.SETTING_MODULE_ROTATIONS;
+  }
+
+  private boolean areModulesAtRotation() {
+    return moduleInputs.length
+        == IntStream.range(0, moduleInputs.length)
+            .filter(
+                index ->
+                    MathUtil.isNear(
+                        wantedAbsoluteModuleRotations[index].getDegrees(),
+                        moduleInputs[index].steerPosition.getDegrees(),
+                        SwerveConstants.SETTING_MODULE_ROTATION_TOLERANCE.in(Degrees)))
+            .count();
+  }
+
+  public Command getAbsoluteModuleRotationsSettingCommand() {
+    final Rotation2d[] moduleRotations =
+        switch (wantedState) {
+          case SYS_ID_TRANSLATION, SYS_ID_STEER -> SwerveConstants.MODULE_ROTATIONS_FOR_TRANSLATION;
+          case SYS_ID_ROTATION, WHEEL_RADIUS_CHARACTERIZATION ->
+              SwerveConstants.MODULE_ROTATIONS_FOR_ROTATION;
+          default -> SwerveConstants.MODULE_ROTATIONS_FOR_TRANSLATION;
+        };
+
+    return Commands.sequence(
+        Commands.runOnce(() -> setWantedAbsoluteModuleRotations(moduleRotations)),
+        Commands.waitUntil(() -> !isSettingModulePositions()));
   }
 
   public Command getDynamicForwardCommand() {
@@ -374,7 +430,7 @@ public class Swerve extends SubsystemBase {
                   state.positions = new double[4];
 
                   for (int i = 0; i < state.positions.length; i++) {
-                    state.positions[i] = moduleInputs[i].drivePositionRad.in(Radians);
+                    state.positions[i] = moduleInputs[i].drivePositionRad.times(TunerConstants.FrontLeft.DriveMotorGearRatio).in(Radians);
                   }
 
                   state.lastAngle = swerveInputs.RawHeading;
@@ -395,7 +451,7 @@ public class Swerve extends SubsystemBase {
                       double[] positions = new double[4];
 
                       for (int i = 0; i < positions.length; i++) {
-                        positions[i] = moduleInputs[i].drivePositionRad.in(Radians);
+                        positions[i] = moduleInputs[i].drivePositionRad.times(TunerConstants.FrontLeft.DriveMotorGearRatio).in(Radians);
                       }
 
                       double wheelDelta = 0.0;

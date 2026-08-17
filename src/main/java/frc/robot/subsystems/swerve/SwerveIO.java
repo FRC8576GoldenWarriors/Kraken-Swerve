@@ -86,6 +86,7 @@ public interface SwerveIO {
     public Temperature steerTemperatureCelsius = Celsius.of(0.0);
 
     public boolean canCoderConnected = false;
+    public Angle canCoderSteerPositionRads = Radians.of(0);
     public Rotation2d steerAbsolutePosition = Rotation2d.kZero;
 
     public SwerveModuleState currentState = new SwerveModuleState();

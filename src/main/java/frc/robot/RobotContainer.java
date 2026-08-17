@@ -56,20 +56,24 @@ public class RobotContainer {
 
     if (SwerveConstants.USE_SYS_ID_MODE) {
       controller
-          .back()
+          .rightBumper()
           .onTrue(
-              Commands.runOnce(() -> swerve.setWantedState(SwerveConstants.WANTED_SYS_ID_STATE)));
-      controller.x().and(controller.a()).whileTrue(swerve.getDynamicForwardCommand());
-      controller.a().and(controller.b()).whileTrue(swerve.getDynamicReverseCommand());
-      controller.b().and(controller.y()).whileTrue(swerve.getQuasistaticForwardCommand());
-      controller.y().and(controller.x()).whileTrue(swerve.getQuasistaticReverseCommand());
+              Commands.sequence(
+                  swerve.getAbsoluteModuleRotationsSettingCommand(),
+                  Commands.runOnce(
+                      () -> swerve.setWantedState(SwerveConstants.WANTED_SYS_ID_STATE))));
+      controller.x().whileTrue(swerve.getDynamicForwardCommand());
+      controller.y().whileTrue(swerve.getDynamicReverseCommand());
+      controller.a().whileTrue(swerve.getQuasistaticForwardCommand());
+      controller.b().whileTrue(swerve.getQuasistaticReverseCommand());
       controller
           .leftBumper()
-          .whileTrue(
-              swerve
-                  .getWheelRadiusCharacterizationCommand()
-                  .beforeStarting(
-                      () -> swerve.setWantedState(WantedState.WHEEL_RADIUS_CHARACTERIZATION)));
+          .onTrue(
+              Commands.sequence(
+                  swerve.getAbsoluteModuleRotationsSettingCommand(),
+                  Commands.runOnce(
+                      () -> swerve.setWantedState(WantedState.WHEEL_RADIUS_CHARACTERIZATION)),
+                  swerve.getWheelRadiusCharacterizationCommand()));
       return;
     }
 
@@ -94,12 +98,6 @@ public class RobotContainer {
             Commands.runOnce(() -> swerve.setWantedState(WantedState.TAXI)).withName("Drive Taxi"))
         .onFalse(Commands.runOnce(() -> swerve.setWantedState(WantedState.IDLE)));
 
-    // // Run SysId routines when holding back/start and X/Y.
-    // // Note that each routine should be run exactly once in a single log.
-    // controller.back().and(controller.y()).whileTrue(swerve.sysIdDynamic(Direction.kForward));
-    // controller.back().and(controller.x()).whileTrue(swerve.sysIdDynamic(Direction.kReverse));
-    // controller.start().and(controller.y()).whileTrue(swerve.sysIdQuasistatic(Direction.kForward));
-    // controller.start().and(controller.x()).whileTrue(swerve.sysIdQuasistatic(Direction.kReverse));
 
   }
 

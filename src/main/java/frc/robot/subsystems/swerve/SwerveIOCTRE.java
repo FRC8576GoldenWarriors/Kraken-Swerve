@@ -176,6 +176,7 @@ public class SwerveIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> i
 
       Supplier<Boolean> canCoderConnectedSupplier = () -> steerCANCoder.isConnected();
       var steerAbsolutePositionSignal = steerCANCoder.getAbsolutePosition();
+      var canCoderSteerPositionRads = steerCANCoder.getPosition();
 
       Consumer<ModuleIOInputs> moduleInput =
           (ModuleIOInputs moduleInputs) -> {
@@ -200,6 +201,7 @@ public class SwerveIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> i
             moduleInputs.steerTemperatureCelsius = steerTemperatureSignal.getValue();
 
             moduleInputs.canCoderConnected = canCoderConnectedSupplier.get();
+            moduleInputs.canCoderSteerPositionRads = canCoderSteerPositionRads.getValue();
             moduleInputs.steerAbsolutePosition =
                 new Rotation2d(steerAbsolutePositionSignal.getValue());
 
@@ -219,7 +221,8 @@ public class SwerveIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> i
           steerPositionSignal,
           steerVelocitySignal,
           steerAppliedVoltsSignal,
-          steerAbsolutePositionSignal);
+          steerAbsolutePositionSignal,
+          canCoderSteerPositionRads);
 
       BaseStatusSignal.setUpdateFrequencyForAll(
           SwerveConstants.SLOW_UPDATE_FREQUENCY,
@@ -246,7 +249,8 @@ public class SwerveIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> i
           steerSupplyCurrentSignal,
           steerStatorCurrentSignal,
           steerTemperatureSignal,
-          steerAbsolutePositionSignal);
+          steerAbsolutePositionSignal,
+          canCoderSteerPositionRads);
     }
   }
 
