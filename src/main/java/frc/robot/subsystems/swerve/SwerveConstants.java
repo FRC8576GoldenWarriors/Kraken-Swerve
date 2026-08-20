@@ -129,4 +129,28 @@ public class SwerveConstants {
   // Wheel Radius
   public static final double WHEEL_RADIUS_RAMP_RATE = 0.05;
   public static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25;
+
+  // ==========================================
+  // Simulation Drivetrain Constants
+  // ==========================================
+
+  // Steer Feedforward
+  public static final double SIM_STEER_KS = 0.1;
+  public static final double SIM_STEER_KV = 2.49;
+  public static final double SIM_STEER_KA = 0.0;
+
+  // Steer PID
+  public static final double SIM_STEER_KP = 12.5;
+  public static final double SIM_STEER_KI = 0.0;
+  public static final double SIM_STEER_KD = 0.5;
+
+  // Drive Feedforward
+  public static final double SIM_DRIVE_KS = 0;
+  public static final double SIM_DRIVE_KV = 0.124;
+  public static final double SIM_DRIVE_KA = 0;
+
+  // Drive PID
+  public static final double SIM_DRIVE_KP = 0.1;
+  public static final double SIM_DRIVE_KI = 0;
+  public static final double SIM_DRIVE_KD = 0;
 }
