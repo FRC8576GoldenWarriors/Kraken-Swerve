@@ -222,12 +222,12 @@ public class SwerveIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> i
           steerVelocitySignal,
           steerAppliedVoltsSignal,
           steerAbsolutePositionSignal,
-          canCoderSteerPositionRads);
+          canCoderSteerPositionRads,
+          driveStatorCurrentSignal);
 
       BaseStatusSignal.setUpdateFrequencyForAll(
           SwerveConstants.SLOW_UPDATE_FREQUENCY,
           driveSupplyCurrentSignal,
-          driveStatorCurrentSignal,
           driveTemperatureSignal,
           steerSupplyCurrentSignal,
           steerStatorCurrentSignal,

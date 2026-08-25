@@ -54,7 +54,7 @@ public class SwerveConstants {
   public static final ChassisSpeeds TAXI_FIELD_CHASSIS_SPEEDS = new ChassisSpeeds(0.5, 0, 0);
 
   public static final Rotation2d[] MODULE_ROTATIONS_FOR_TRANSLATION = {
-    Rotation2d.kZero, Rotation2d.kZero, Rotation2d.kZero, Rotation2d.kZero
+    Rotation2d.kZero, Rotation2d.kZero, Rotation2d.k180deg, Rotation2d.k180deg
   };
 
   public static final Rotation2d[] MODULE_ROTATIONS_FOR_ROTATION = {
@@ -63,7 +63,7 @@ public class SwerveConstants {
     Rotation2d.fromDegrees(-135),
     Rotation2d.fromDegrees(-45)
   };
-  public static final Angle SETTING_MODULE_ROTATION_TOLERANCE = Degrees.of(0.25);
+  public static final Angle SETTING_MODULE_ROTATION_TOLERANCE = Degrees.of(1);
 
   public static final Rotation2d BLUE_PERSPECTIVE_ROTATION = Rotation2d.kZero;
   public static final Rotation2d RED_PERSPECTIVE_ROTATION = Rotation2d.k180deg;
@@ -80,19 +80,20 @@ public class SwerveConstants {
   // ==========================================
 
   // Steer Feedforward
-  public static final double STEER_KS = 0.267735; // 0.1;
-  public static final double STEER_KV = 0.358655; // 2.49;
-  public static final double STEER_KA = 0.07247; // 0.0;
+  public static final double STEER_KS = 0.1;
+  public static final double STEER_KV = 2.49;
+  public static final double STEER_KA = 0.0;
 
   // Steer PID
-  public static final double STEER_KP = 12.5;
+  public static final double STEER_KP = 100;
   public static final double STEER_KI = 0.0;
-  public static final double STEER_KD = 0.5;
+  public static final double STEER_KD = 0.5
+  ;
 
   // Drive Feedforward
-  public static final double DRIVE_KS = 0.10658325; // 0;
-  public static final double DRIVE_KV = 0.0029825; // 0.124;
-  public static final double DRIVE_KA = 0.0001885095; // 0;
+  public static final double DRIVE_KS = 0;
+  public static final double DRIVE_KV = 0.124;
+  public static final double DRIVE_KA = 0;
 
   // Drive PID
   public static final double DRIVE_KP = 0.1;
@@ -121,8 +122,9 @@ public class SwerveConstants {
   // SysId Characterization & Tuning Constants
   // =====================================
   public static final boolean USE_SYS_ID_MODE = true;
+  ;
   public static final WantedState WANTED_SYS_ID_STATE = WantedState.SYS_ID_TRANSLATION;
-  public static final boolean USE_TUNING_MODE = true;
+  public static final boolean USE_TUNING_MODE = false;
 
   // Translation
   public static final Velocity<VoltageUnit> SYS_ID_TRANSLATION_RAMP_RATE = Volts.of(1).per(Second);

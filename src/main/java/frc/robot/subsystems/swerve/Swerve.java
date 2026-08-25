@@ -175,7 +175,8 @@ public class Swerve extends SubsystemBase {
   @Override
   public void periodic() {
 
-    // TODO: Check if this is actually doing what it's meant to do. SysID forward moves opposite the teleop forward direction
+    // TODO: Check if this is actually doing what it's meant to do. SysID forward moves opposite the
+    // teleop forward direction
     applyOperatorForwardPerspective();
 
     io.updateInputs(swerveInputs, gyroInputs, moduleInputs);
@@ -430,7 +431,11 @@ public class Swerve extends SubsystemBase {
                   state.positions = new double[4];
 
                   for (int i = 0; i < state.positions.length; i++) {
-                    state.positions[i] = moduleInputs[i].drivePositionRad.times(TunerConstants.FrontLeft.DriveMotorGearRatio).in(Radians);
+                    state.positions[i] =
+                        moduleInputs[i]
+                            .drivePositionRad
+                            .times(TunerConstants.FrontLeft.DriveMotorGearRatio)
+                            .in(Radians);
                   }
 
                   state.lastAngle = swerveInputs.RawHeading;
@@ -451,7 +456,11 @@ public class Swerve extends SubsystemBase {
                       double[] positions = new double[4];
 
                       for (int i = 0; i < positions.length; i++) {
-                        positions[i] = moduleInputs[i].drivePositionRad.times(TunerConstants.FrontLeft.DriveMotorGearRatio).in(Radians);
+                        positions[i] =
+                            moduleInputs[i]
+                                .drivePositionRad
+                                .times(TunerConstants.FrontLeft.DriveMotorGearRatio)
+                                .in(Radians);
                       }
 
                       double wheelDelta = 0.0;

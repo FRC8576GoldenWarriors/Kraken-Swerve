@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Seconds;
+
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -59,7 +61,7 @@ public class RobotContainer {
           .rightBumper()
           .onTrue(
               Commands.sequence(
-                  swerve.getAbsoluteModuleRotationsSettingCommand(),
+                    swerve.getAbsoluteModuleRotationsSettingCommand().withTimeout(Seconds.of(2)),
                   Commands.runOnce(
                       () -> swerve.setWantedState(SwerveConstants.WANTED_SYS_ID_STATE))));
       controller.x().whileTrue(swerve.getDynamicForwardCommand());
@@ -70,7 +72,6 @@ public class RobotContainer {
           .leftBumper()
           .onTrue(
               Commands.sequence(
-                  swerve.getAbsoluteModuleRotationsSettingCommand(),
                   Commands.runOnce(
                       () -> swerve.setWantedState(WantedState.WHEEL_RADIUS_CHARACTERIZATION)),
                   swerve.getWheelRadiusCharacterizationCommand()));
@@ -97,8 +98,6 @@ public class RobotContainer {
         .onTrue(
             Commands.runOnce(() -> swerve.setWantedState(WantedState.TAXI)).withName("Drive Taxi"))
         .onFalse(Commands.runOnce(() -> swerve.setWantedState(WantedState.IDLE)));
-
-
   }
 
   public Command getAutonomousCommand() {
