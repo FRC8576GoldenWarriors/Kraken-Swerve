@@ -16,7 +16,6 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.swerve.SwerveConstants;
-
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
 import org.ironmaple.simulation.motorsims.SimulatedBattery;
@@ -49,8 +48,11 @@ public class MapleSimSwerve {
         SwerveModule<TalonFX, TalonFX, CANcoder> swerveModule) {
       this.swerveModuleConstant = swerveModuleConstant;
       this.simSwerveModule = simSwerveModule;
-      simSwerveModule.useDriveMotorController(new TalonFXMotorControllerSim(swerveModule.getDriveMotor()));
-      simSwerveModule.useSteerMotorController(new TalonFXMotorControllerRemoteCANcoderSim(swerveModule.getDriveMotor(), swerveModule.getEncoder()));
+      simSwerveModule.useDriveMotorController(
+          new TalonFXMotorControllerSim(swerveModule.getDriveMotor()));
+      simSwerveModule.useSteerMotorController(
+          new TalonFXMotorControllerRemoteCANcoderSim(
+              swerveModule.getDriveMotor(), swerveModule.getEncoder()));
     }
   }
 
