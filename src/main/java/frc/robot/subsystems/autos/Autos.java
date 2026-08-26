@@ -11,6 +11,10 @@ import frc.robot.util.AllianceUtil;
 import frc.robot.util.LoggedAutoChooser;
 import org.littletonrobotics.junction.Logger;
 
+import com.pathplanner.lib.commands.PathfindingCommand;
+import com.pathplanner.lib.pathfinding.Pathfinder;
+import com.pathplanner.lib.pathfinding.Pathfinding;
+
 public class Autos {
 
   private final LoggedAutoChooser loggedAutoChooser;
@@ -43,7 +47,8 @@ public class Autos {
             swerve,
             trajectoryLogger);
 
-    CommandScheduler.getInstance().schedule(autoFactory.warmupCmd());
+    CommandScheduler.getInstance().schedule(autoFactory.warmupCmd(), PathfindingCommand.warmupCommand());
+    
   }
 
   public Command getAutonomousCommand() {
