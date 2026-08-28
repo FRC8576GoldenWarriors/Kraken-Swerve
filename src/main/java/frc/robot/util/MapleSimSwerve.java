@@ -1,6 +1,8 @@
 package frc.robot.util;
 
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -22,8 +24,8 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Frequency;
 import edu.wpi.first.units.measure.Mass;
-import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.generated.TunerConstants;
@@ -42,7 +44,7 @@ public class MapleSimSwerve {
   private final SwerveDriveSimulation simSwerveDrivetrain;
 
   public MapleSimSwerve(
-      Time simPeriod,
+      Frequency simulationFrequency,
       Mass robotMassWithBumpers,
       Distance bumperLengthX,
       Distance bumperLengthY,
@@ -69,7 +71,7 @@ public class MapleSimSwerve {
                     moduleConstants[0].SteerMotorGearRatio,
                     Volts.of(moduleConstants[0].DriveFrictionVoltage),
                     Volts.of(moduleConstants[0].SteerFrictionVoltage),
-                    bumperLengthY,
+                    Meters.of(moduleConstants[0].WheelRadius),
                     KilogramSquareMeters.of(moduleConstants[0].SteerInertia),
                     wheelCOF));
     simSwerveDrivetrain = new SwerveDriveSimulation(simConfig, Pose2d.kZero);
@@ -81,7 +83,7 @@ public class MapleSimSwerve {
           new SimSwerveModule(moduleConstants[i], moduleSimulations[i], modules[i]);
     }
 
-    SimulatedArena.overrideSimulationTimings(simPeriod, 1);
+    SimulatedArena.overrideSimulationTimings(simulationFrequency.asPeriod(), 1);
     SimulatedArena.getInstance().addDriveTrainSimulation(simSwerveDrivetrain);
   }
 

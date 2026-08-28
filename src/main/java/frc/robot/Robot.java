@@ -22,6 +22,16 @@ public class Robot extends LoggedRobot {
   private final StatusSignalRefresher refresher;
   private final CommandSchedulerLogger schedulerLogger;
 
+  private static enum Mode {
+    SIM,
+    REAL,
+    REPLAY
+  }
+
+  private static final boolean useReplay = false;
+
+  public static final Mode mode = (useReplay) ? Mode.REPLAY : (isReal() ? Mode.REAL : Mode.SIM);
+
   public Robot() {
     Logger.recordMetadata("ProjectName", "CTREIOSwerveDrive"); // Set a metadata value
     Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
@@ -29,18 +39,22 @@ public class Robot extends LoggedRobot {
     Logger.recordOutput("GitDate", BuildConstants.GIT_DATE);
     Logger.recordOutput("BuildDate", BuildConstants.BUILD_DATE);
 
-    if (isReal()) {
-      Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
-      Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-    } else {
-      setUseTiming(false); // Run as fast as possible
-      String logPath =
-          LogFileUtil
-              .findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
-      Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
-      Logger.addDataReceiver(
-          new WPILOGWriter(
-              LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
+    switch (mode) {
+      case REAL:
+        Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
+        Logger.addDataReceiver(new NT4Publisher());
+        break;
+      case SIM:
+        Logger.addDataReceiver(new NT4Publisher());
+        break;
+      case REPLAY:
+        setUseTiming(false); // Run as fast as possible
+        String logPath =
+            LogFileUtil
+                .findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
+        Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
+        Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
+        break;
     }
 
     Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may

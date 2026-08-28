@@ -131,7 +131,6 @@ public class RobotContainer {
       moduleConstants[1] = TunerConstants.FrontRight;
       moduleConstants[2] = TunerConstants.BackLeft;
       moduleConstants[3] = TunerConstants.BackRight;
-
       return new Swerve(new SwerveIOSim(TunerConstants.DrivetrainConstants, moduleConstants));
     }
   }

@@ -4,6 +4,8 @@ import static edu.wpi.first.units.Units.Hertz;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -46,7 +48,9 @@ public class SwerveIOCTRE extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> i
   private final Field2d fieldViz;
 
   public SwerveIOCTRE(
-      SwerveDrivetrainConstants constants, SwerveModuleConstants<?, ?, ?>[] moduleConstants) {
+      SwerveDrivetrainConstants constants,
+      SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>[]
+          moduleConstants) {
     super(
         TalonFX::new,
         TalonFX::new,

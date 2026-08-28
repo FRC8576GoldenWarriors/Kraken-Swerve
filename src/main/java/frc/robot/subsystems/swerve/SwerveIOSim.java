@@ -1,5 +1,6 @@
 package frc.robot.subsystems.swerve;
 
+import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.Seconds;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -7,6 +8,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.units.measure.Frequency;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Timer;
@@ -15,7 +17,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class SwerveIOSim extends SwerveIOCTRE {
 
-  private static final Time SIM_PERIOD_LOOP = Seconds.of(0.005);
+  private static final Frequency SIM_PERIOD_LOOP = Hertz.of(200);
 
   private final Notifier simThread;
 
