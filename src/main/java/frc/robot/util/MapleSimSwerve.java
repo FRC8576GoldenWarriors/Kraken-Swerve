@@ -1,5 +1,9 @@
 package frc.robot.util;
 
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Volts;
+
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -10,10 +14,8 @@ import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.Pigeon2SimState;
 import com.ctre.phoenix6.sim.TalonFXSimState;
-import com.ctre.phoenix6.swerve.SimSwerveDrivetrain;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -26,11 +28,6 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.swerve.SwerveConstants;
-
-import static edu.wpi.first.units.Units.KilogramSquareMeters;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Volts;
-
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
@@ -59,17 +56,29 @@ public class MapleSimSwerve {
           moduleConstants) {
     pigeon2SimState = pigeon.getSimState();
     simSwerveModules = new SimSwerveModule[moduleConstants.length];
-    DriveTrainSimulationConfig simConfig = DriveTrainSimulationConfig.Default()
-    .withRobotMass(robotMassWithBumpers)
-    .withBumperSize(bumperLengthX, bumperLengthY)
-    .withCustomModuleTranslations(moduleLocations)
-    .withSwerveModule(new SwerveModuleSimulationConfig(driveMotorModel, steerMotorModel, moduleConstants[0].DriveMotorGearRatio, moduleConstants[0].SteerMotorGearRatio, Volts.of(moduleConstants[0].DriveFrictionVoltage), Volts.of(moduleConstants[0].SteerFrictionVoltage), bumperLengthY, KilogramSquareMeters.of(moduleConstants[0].SteerInertia), wheelCOF));
+    DriveTrainSimulationConfig simConfig =
+        DriveTrainSimulationConfig.Default()
+            .withRobotMass(robotMassWithBumpers)
+            .withBumperSize(bumperLengthX, bumperLengthY)
+            .withCustomModuleTranslations(moduleLocations)
+            .withSwerveModule(
+                new SwerveModuleSimulationConfig(
+                    driveMotorModel,
+                    steerMotorModel,
+                    moduleConstants[0].DriveMotorGearRatio,
+                    moduleConstants[0].SteerMotorGearRatio,
+                    Volts.of(moduleConstants[0].DriveFrictionVoltage),
+                    Volts.of(moduleConstants[0].SteerFrictionVoltage),
+                    bumperLengthY,
+                    KilogramSquareMeters.of(moduleConstants[0].SteerInertia),
+                    wheelCOF));
     simSwerveDrivetrain = new SwerveDriveSimulation(simConfig, Pose2d.kZero);
 
     SwerveModuleSimulation[] moduleSimulations = simSwerveDrivetrain.getModules();
 
-    for(int i = 0; i < this.simSwerveModules.length; i++) {
-      simSwerveModules[i] = new SimSwerveModule(moduleConstants[i], moduleSimulations[i], modules[i]);
+    for (int i = 0; i < this.simSwerveModules.length; i++) {
+      simSwerveModules[i] =
+          new SimSwerveModule(moduleConstants[i], moduleSimulations[i], modules[i]);
     }
 
     SimulatedArena.overrideSimulationTimings(simPeriod, 1);
@@ -78,8 +87,12 @@ public class MapleSimSwerve {
 
   public void update() {
     SimulatedArena.getInstance().simulationPeriodic();
-    pigeon2SimState.setRawYaw(simSwerveDrivetrain.getSimulatedDriveTrainPose().getRotation().getMeasure());
-    pigeon2SimState.setAngularVelocityZ(RadiansPerSecond.of(simSwerveDrivetrain.getDriveTrainSimulatedChassisSpeedsRobotRelative().omegaRadiansPerSecond));
+    pigeon2SimState.setRawYaw(
+        simSwerveDrivetrain.getSimulatedDriveTrainPose().getRotation().getMeasure());
+    pigeon2SimState.setAngularVelocityZ(
+        RadiansPerSecond.of(
+            simSwerveDrivetrain.getDriveTrainSimulatedChassisSpeedsRobotRelative()
+                .omegaRadiansPerSecond));
   }
 
   private static final class SimSwerveModule {
@@ -187,5 +200,9 @@ public class MapleSimSwerve {
                 .withKV(SwerveConstants.SIM_STEER_KV)
                 .withKA(SwerveConstants.SIM_STEER_KA)
                 .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign));
+  }
+
+  public SwerveDriveSimulation getMapleSwerveDrivetrainSimulation() {
+    return simSwerveDrivetrain;
   }
 }

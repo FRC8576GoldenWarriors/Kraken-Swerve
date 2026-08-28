@@ -4,8 +4,11 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -15,6 +18,7 @@ import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.Swerve.WantedState;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveIOCTRE;
+import frc.robot.subsystems.swerve.SwerveIOSim;
 
 public class RobotContainer {
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -109,13 +113,26 @@ public class RobotContainer {
   }
 
   private Swerve buildSwerveSubsystem() {
-    SwerveModuleConstants<?, ?, ?>[] moduleConstants = new SwerveModuleConstants[4];
+    if (RobotBase.isReal()) {
+      SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>[]
+          moduleConstants = new SwerveModuleConstants[4];
 
-    moduleConstants[0] = TunerConstants.FrontLeft;
-    moduleConstants[1] = TunerConstants.FrontRight;
-    moduleConstants[2] = TunerConstants.BackLeft;
-    moduleConstants[3] = TunerConstants.BackRight;
+      moduleConstants[0] = TunerConstants.FrontLeft;
+      moduleConstants[1] = TunerConstants.FrontRight;
+      moduleConstants[2] = TunerConstants.BackLeft;
+      moduleConstants[3] = TunerConstants.BackRight;
 
-    return new Swerve(new SwerveIOCTRE(TunerConstants.DrivetrainConstants, moduleConstants));
+      return new Swerve(new SwerveIOCTRE(TunerConstants.DrivetrainConstants, moduleConstants));
+    } else {
+      SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>[]
+          moduleConstants = new SwerveModuleConstants[4];
+
+      moduleConstants[0] = TunerConstants.FrontLeft;
+      moduleConstants[1] = TunerConstants.FrontRight;
+      moduleConstants[2] = TunerConstants.BackLeft;
+      moduleConstants[3] = TunerConstants.BackRight;
+
+      return new Swerve(new SwerveIOSim(TunerConstants.DrivetrainConstants, moduleConstants));
+    }
   }
 }

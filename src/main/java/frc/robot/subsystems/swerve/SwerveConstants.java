@@ -1,8 +1,10 @@
 package frc.robot.subsystems.swerve;
 
 import static edu.wpi.first.units.Units.Hertz;
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
@@ -16,10 +18,12 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.VoltageUnit;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Frequency;
+import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
@@ -47,6 +51,13 @@ public class SwerveConstants {
   public static final AngularVelocity MAX_ANGULAR_VELOCITY =
       RadiansPerSecond.of(
           TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / DRIVE_BASE_RADIUS.in(Meters));
+
+  public static final Mass ROBOT_WEIGHT_WITH_BUMPERS = Pounds.of(37);
+  public static final Distance ROBOT_BUMPER_WIDTH = Inches.of(35);
+  public static final Distance ROBOT_BUMPER_LENGTH = Inches.of(35);
+  public static final DCMotor DRIVE_MOTOR_MODEL = DCMotor.getKrakenX60(1);
+  public static final DCMotor STEER_MOTOR_MODEL = DCMotor.getKrakenX44(1);
+  public static final double COF = 1.2;
 
   public static final ChassisSpeeds ZERO_ROBOT_CHASSIS_SPEEDS = new ChassisSpeeds();
   public static final ChassisSpeeds TAXI_FIELD_CHASSIS_SPEEDS = new ChassisSpeeds(0.5, 0, 0);
