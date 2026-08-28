@@ -87,8 +87,7 @@ public class SwerveConstants {
   // Steer PID
   public static final double STEER_KP = 100;
   public static final double STEER_KI = 0.0;
-  public static final double STEER_KD = 0.5
-  ;
+  public static final double STEER_KD = 0.5;
 
   // Drive Feedforward
   public static final double DRIVE_KS = 0;

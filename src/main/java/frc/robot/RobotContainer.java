@@ -61,7 +61,7 @@ public class RobotContainer {
           .rightBumper()
           .onTrue(
               Commands.sequence(
-                    swerve.getAbsoluteModuleRotationsSettingCommand().withTimeout(Seconds.of(2)),
+                  swerve.getAbsoluteModuleRotationsSettingCommand().withTimeout(Seconds.of(2)),
                   Commands.runOnce(
                       () -> swerve.setWantedState(SwerveConstants.WANTED_SYS_ID_STATE))));
       controller.x().whileTrue(swerve.getDynamicForwardCommand());
