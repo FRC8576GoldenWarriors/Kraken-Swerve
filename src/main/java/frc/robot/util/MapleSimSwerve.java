@@ -1,6 +1,5 @@
 package frc.robot.util;
 
-import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
@@ -132,10 +131,10 @@ public class MapleSimSwerve {
         AngularVelocity mechanismVelocity,
         Angle encoderAngle,
         AngularVelocity encoderVelocity) {
-          Logger.recordOutput("Sim/mechAngle" + id, mechanismAngle);
-          Logger.recordOutput("Sim/mechVelocity" + id, mechanismVelocity);
-          Logger.recordOutput("Sim/encoderAngle" + id, encoderAngle);
-          Logger.recordOutput("Sim/encoderVelocity" + id, encoderVelocity);
+      Logger.recordOutput("Sim/mechAngle" + id, mechanismAngle);
+      Logger.recordOutput("Sim/mechVelocity" + id, mechanismVelocity);
+      Logger.recordOutput("Sim/encoderAngle" + id, encoderAngle);
+      Logger.recordOutput("Sim/encoderVelocity" + id, encoderVelocity);
       talonFXSimState.setRawRotorPosition(encoderAngle);
       talonFXSimState.setRotorVelocity(encoderVelocity);
       talonFXSimState.setSupplyVoltage(SimulatedBattery.getBatteryVoltage());
