@@ -82,7 +82,7 @@ public class RobotContainer {
         .a()
         .onTrue(
             Commands.runOnce(() -> swerve.setWantedState(WantedState.ROTATION_LOCK))
-                .beforeStarting(() -> swerve.setWantedRotation(new Rotation2d(Math.PI / 4)))
+                .beforeStarting(() -> swerve.setWantedRotation(Rotation2d.kZero))
                 .withName("Rotation Lock"))
         .onFalse(Commands.runOnce(() -> swerve.setWantedState(WantedState.IDLE)));
 

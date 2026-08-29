@@ -99,6 +99,11 @@ public class SwerveConstants {
   public static final double DRIVE_KI = 0;
   public static final double DRIVE_KD = 0;
 
+  // Heading PID
+  public static final double ROTATION_KP = 5;
+  public static final double ROTATION_KI = 0;
+  public static final double ROTATION_KD = 0.15;
+
   // ==========================================
   // Driver Input & Deadband Settings
   // ==========================================
