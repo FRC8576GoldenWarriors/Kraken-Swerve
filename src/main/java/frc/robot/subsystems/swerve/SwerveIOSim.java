@@ -3,13 +3,14 @@ package frc.robot.subsystems.swerve;
 import static edu.wpi.first.units.Units.Hertz;
 import static edu.wpi.first.units.Units.Seconds;
 
+import java.util.function.Consumer;
+
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.measure.Frequency;
-import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.util.MapleSimSwerve;
@@ -17,7 +18,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class SwerveIOSim extends SwerveIOCTRE {
 
-  private static final Frequency SIM_PERIOD_LOOP = Hertz.of(200);
+  private static final Frequency SIM_PERIOD_LOOP = Hertz.of(250);
 
   private final Notifier simThread;
 
@@ -35,8 +36,17 @@ public class SwerveIOSim extends SwerveIOCTRE {
 
     this.moduleConstants = moduleConstants;
     mapleSimSwerve = configureSimSwerve();
-    simThread = new Notifier(mapleSimSwerve::update);
+    registerTelemetry();
+    simThread = new Notifier(mapleSimSwerve::update); 
     simThread.startPeriodic(SIM_PERIOD_LOOP);
+  }
+
+  private void registerTelemetry() {
+    super.registerTelemetry((swerveDriveState) -> {
+      if(mapleSimSwerve != null) {
+        swerveDriveState.Pose = mapleSimSwerve.getMapleSwerveDrivetrainSimulation().getSimulatedDriveTrainPose();
+      }
+    });
   }
 
   private MapleSimSwerve configureSimSwerve() {

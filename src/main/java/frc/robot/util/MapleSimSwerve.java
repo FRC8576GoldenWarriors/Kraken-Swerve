@@ -37,6 +37,7 @@ import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 import org.ironmaple.simulation.motorsims.SimulatedBattery;
 import org.ironmaple.simulation.motorsims.SimulatedMotorController;
+import org.littletonrobotics.junction.Logger;
 
 public class MapleSimSwerve {
   private final Pigeon2SimState pigeon2SimState;
@@ -111,7 +112,7 @@ public class MapleSimSwerve {
           new TalonFXMotorControllerSim(swerveModule.getDriveMotor()));
       simSwerveModule.useSteerMotorController(
           new TalonFXMotorControllerRemoteCANcoderSim(
-              swerveModule.getDriveMotor(), swerveModule.getEncoder()));
+              swerveModule.getSteerMotor(), swerveModule.getEncoder()));
     }
   }
 
@@ -131,6 +132,10 @@ public class MapleSimSwerve {
         AngularVelocity mechanismVelocity,
         Angle encoderAngle,
         AngularVelocity encoderVelocity) {
+          Logger.recordOutput("Sim/mechAngle" + id, mechanismAngle);
+          Logger.recordOutput("Sim/mechVelocity" + id, mechanismVelocity);
+          Logger.recordOutput("Sim/encoderAngle" + id, encoderAngle);
+          Logger.recordOutput("Sim/encoderVelocity" + id, encoderVelocity);
       talonFXSimState.setRawRotorPosition(encoderAngle);
       talonFXSimState.setRotorVelocity(encoderVelocity);
       talonFXSimState.setSupplyVoltage(SimulatedBattery.getBatteryVoltage());
