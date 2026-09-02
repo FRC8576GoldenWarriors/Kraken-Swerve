@@ -11,12 +11,13 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.measure.Frequency;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Timer;
-import frc.robot.util.MapleSimSwerve;
+import frc.robot.generated.TunerConstants;
+import frc.robot.util.MapleSimSwerveDrivetrain;
 import org.littletonrobotics.junction.Logger;
 
 public class SwerveIOSim extends SwerveIOCTRE {
 
-  private static final Frequency SIM_PERIOD_LOOP = Hertz.of(250);
+  private static final Frequency SIM_PERIOD_LOOP = Hertz.of(50);
 
   private final Notifier simThread;
 
@@ -24,7 +25,7 @@ public class SwerveIOSim extends SwerveIOCTRE {
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>[]
       moduleConstants;
 
-  private final MapleSimSwerve mapleSimSwerve;
+  private final MapleSimSwerveDrivetrain mapleSimSwerve;
 
   public SwerveIOSim(
       SwerveDrivetrainConstants constants,
@@ -34,24 +35,15 @@ public class SwerveIOSim extends SwerveIOCTRE {
 
     this.moduleConstants = moduleConstants;
     mapleSimSwerve = configureSimSwerve();
-    registerTelemetry();
+
     simThread = new Notifier(mapleSimSwerve::update);
     simThread.startPeriodic(SIM_PERIOD_LOOP);
+    
   }
 
-  private void registerTelemetry() {
-    super.registerTelemetry(
-        (swerveDriveState) -> {
-          if (mapleSimSwerve != null) {
-            swerveDriveState.Pose =
-                mapleSimSwerve.getMapleSwerveDrivetrainSimulation().getSimulatedDriveTrainPose();
-          }
-        });
-  }
-
-  private MapleSimSwerve configureSimSwerve() {
-    return new MapleSimSwerve(
-        SIM_PERIOD_LOOP,
+  private MapleSimSwerveDrivetrain configureSimSwerve() {
+    return new MapleSimSwerveDrivetrain(
+        SIM_PERIOD_LOOP.asPeriod(),
         SwerveConstants.ROBOT_WEIGHT_WITH_BUMPERS,
         SwerveConstants.ROBOT_BUMPER_WIDTH,
         SwerveConstants.ROBOT_BUMPER_LENGTH,
@@ -66,7 +58,7 @@ public class SwerveIOSim extends SwerveIOCTRE {
 
   @Override
   public void resetPose(Pose2d pose) {
-    mapleSimSwerve.getMapleSwerveDrivetrainSimulation().setSimulationWorldPose(pose);
+    mapleSimSwerve.mapleSimDrive.setSimulationWorldPose(pose);
     Timer.delay(Seconds.of(0.05));
     super.resetPose(pose);
   }

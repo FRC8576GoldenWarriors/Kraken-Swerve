@@ -55,8 +55,8 @@ public class SwerveConstants {
   public static final Mass ROBOT_WEIGHT_WITH_BUMPERS = Pounds.of(37);
   public static final Distance ROBOT_BUMPER_WIDTH = Inches.of(35);
   public static final Distance ROBOT_BUMPER_LENGTH = Inches.of(35);
-  public static final DCMotor DRIVE_MOTOR_MODEL = DCMotor.getKrakenX60(1);
-  public static final DCMotor STEER_MOTOR_MODEL = DCMotor.getKrakenX44(1);
+  public static final DCMotor DRIVE_MOTOR_MODEL = DCMotor.getFalcon500(1);
+  public static final DCMotor STEER_MOTOR_MODEL = DCMotor.getFalcon500(1);
   public static final double COF = 1.2;
 
   public static final ChassisSpeeds ZERO_ROBOT_CHASSIS_SPEEDS = new ChassisSpeeds();
@@ -151,7 +151,7 @@ public class SwerveConstants {
   public static final double SIM_STEER_KA = 0.0;
 
   // Steer PID
-  public static final double SIM_STEER_KP = 12.5;
+  public static final double SIM_STEER_KP = 70;
   public static final double SIM_STEER_KI = 0.0;
   public static final double SIM_STEER_KD = 0.5;
 

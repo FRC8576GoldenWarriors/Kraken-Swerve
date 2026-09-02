@@ -22,7 +22,7 @@ public class Robot extends LoggedRobot {
   private final StatusSignalRefresher refresher;
   private final CommandSchedulerLogger schedulerLogger;
 
-  private static enum Mode {
+  public static enum Mode {
     SIM,
     REAL,
     REPLAY
@@ -68,10 +68,11 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotPeriodic() {
-    refresher.refreshStatusSignals();
 
     // m_timeAndJoystickReplay.update();
     CommandScheduler.getInstance().run();
+
+    refresher.refreshStatusSignals();
 
     schedulerLogger.log();
 
