@@ -24,7 +24,6 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.swerve.Swerve.WantedState;
 
 public class SwerveConstants {
 
@@ -106,9 +105,6 @@ public class SwerveConstants {
   // ==========================================
   // SysId Characterization & Tuning Constants
   // ==========================================
-  public static final boolean USE_SYS_ID_MODE = false;
-  public static final WantedState WANTED_SYS_ID_STATE = WantedState.SYS_ID_ROTATION;
-  public static final boolean USE_TUNING_MODE = false;
 
   // Translation
   public static final Velocity<VoltageUnit> SYS_ID_TRANSLATION_RAMP_RATE = Volts.of(1).per(Second);

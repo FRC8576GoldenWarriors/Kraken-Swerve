@@ -11,19 +11,19 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.Orca;
+import frc.robot.subsystems.orca.Orca;
+import frc.robot.subsystems.orca.OrcaConstants;
 import frc.robot.subsystems.swerve.Swerve;
-import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveIOCTRE;
 
 public class RobotContainer {
   private final CommandXboxController controller = new CommandXboxController(0);
-  public final Orca orca;
-  public final Swerve swerve;
+  private final Orca orca;
+  private final Swerve swerve;
 
   public RobotContainer() {
     swerve = buildSwerveSubsystem();
-    orca = new Orca(this);
+    orca = buildOrcaSubsystem();
     configureBindings();
   }
 
@@ -55,14 +55,14 @@ public class RobotContainer {
             Commands.runOnce(() -> orca.setWantedState(Orca.WantedState.TELEOP))
                 .withName("Drive Teleop"));
 
-    if (SwerveConstants.USE_SYS_ID_MODE) {
+    if (OrcaConstants.USE_SYS_ID_MODE) {
       controller
           .back()
           .onTrue(
               Commands.runOnce(
                   () ->
-                      swerve.setWantedState(
-                          SwerveConstants
+                      orca.setWantedState(
+                          OrcaConstants
                               .WANTED_SYS_ID_STATE))); // Im not sure whether to change this or not
       controller.x().and(controller.a()).whileTrue(swerve.getDynamicForwardCommand());
       controller.a().and(controller.b()).whileTrue(swerve.getDynamicReverseCommand());
@@ -123,5 +123,17 @@ public class RobotContainer {
     moduleConstants[3] = TunerConstants.BackRight;
 
     return new Swerve(new SwerveIOCTRE(TunerConstants.DrivetrainConstants, moduleConstants));
+  }
+
+  public Swerve getSwerveSubsystem() {
+    return this.swerve;
+  }
+
+  private Orca buildOrcaSubsystem() {
+    return new Orca(this);
+  }
+
+  public Orca getOrcaSubsystem() {
+    return this.orca;
   }
 }

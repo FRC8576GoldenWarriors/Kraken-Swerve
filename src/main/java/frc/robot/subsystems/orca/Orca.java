@@ -2,13 +2,18 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems;
+package frc.robot.subsystems.orca;
+
+import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.swerve.Swerve;
+import frc.robot.subsystems.swerve.SwerveConstants;
+import org.littletonrobotics.junction.Logger;
 
 public class Orca extends SubsystemBase {
   /** Creates a new Orca. */
@@ -18,8 +23,8 @@ public class Orca extends SubsystemBase {
 
   private Pose2d currentRobotPose = new Pose2d();
 
-  private ChassisSpeeds currentChassisSpeeds = new ChassisSpeeds();
-  private double chassisSpeedMagnitude = 0.0;
+  private ChassisSpeeds currentChassisSpeeds = SwerveConstants.ZERO_ROBOT_CHASSIS_SPEEDS;
+  private LinearVelocity chassisSpeedMagnitude = MetersPerSecond.zero();
 
   public enum WantedState {
     // Swerve States
@@ -35,7 +40,7 @@ public class Orca extends SubsystemBase {
     WHEEL_RADIUS_CHARACTERIZATION;
   }
 
-  private enum CurrentState {
+  private enum SystemState {
     // Swerve States
     DEFAULT_STATE,
     TELEOP,
@@ -51,11 +56,11 @@ public class Orca extends SubsystemBase {
 
   private WantedState wantedState = WantedState.IDLE;
 
-  private CurrentState currentState = CurrentState.IDLE;
+  private SystemState systemState = SystemState.IDLE;
 
   public Orca(RobotContainer robotContainer) {
     this.robotContainer = robotContainer;
-    this.swerve = robotContainer.swerve;
+    this.swerve = robotContainer.getSwerveSubsystem();
   }
 
   public void setWantedState(WantedState state) {
@@ -68,32 +73,36 @@ public class Orca extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
 
-    // Add logging and set currentRobotPose, currentChassisSpeeds, and chassisSpeedMagnitude here
-    currentState = handleStateTransitions();
+    // ! Add a method to track robot state. Should include pose, chassisSpeed, and other important
+    // state data.
+
+    systemState = handleStateTransitions();
+
+    Logger.recordOutput(OrcaConstants.LOG_PATH + "WantedState", wantedState);
+    Logger.recordOutput(OrcaConstants.LOG_PATH + "CurrentState", systemState);
 
     applyStates();
   }
 
-  private CurrentState handleStateTransitions() {
+  private SystemState handleStateTransitions() {
     return switch (wantedState) {
-      case TELEOP -> CurrentState.TELEOP;
-      case ROTATION_LOCK -> CurrentState.ROTATION_LOCK;
-      case WHEEL_LOCK_WITH_X -> CurrentState.WHEEL_LOCK_WITH_X;
-      case IDLE -> CurrentState.IDLE;
-      case TAXI -> CurrentState.TAXI;
-      case SYS_ID_TRANSLATION -> CurrentState.SYS_ID_TRANSLATION;
-      case SYS_ID_STEER -> CurrentState.SYS_ID_STEER;
-      case SYS_ID_ROTATION -> CurrentState.SYS_ID_ROTATION;
-      case WHEEL_RADIUS_CHARACTERIZATION -> CurrentState.WHEEL_RADIUS_CHARACTERIZATION;
-      default -> CurrentState.IDLE;
+      case TELEOP -> SystemState.TELEOP;
+      case ROTATION_LOCK -> SystemState.ROTATION_LOCK;
+      case WHEEL_LOCK_WITH_X -> SystemState.WHEEL_LOCK_WITH_X;
+      case IDLE -> SystemState.IDLE;
+      case TAXI -> SystemState.TAXI;
+      case SYS_ID_TRANSLATION -> SystemState.SYS_ID_TRANSLATION;
+      case SYS_ID_STEER -> SystemState.SYS_ID_STEER;
+      case SYS_ID_ROTATION -> SystemState.SYS_ID_ROTATION;
+      case WHEEL_RADIUS_CHARACTERIZATION -> SystemState.WHEEL_RADIUS_CHARACTERIZATION;
+      default -> SystemState.IDLE;
     };
   }
 
   private void applyStates() {
 
-    switch (currentState) {
+    switch (systemState) {
       case TELEOP -> teleop();
       case ROTATION_LOCK -> rotationLock();
       case WHEEL_LOCK_WITH_X -> wheelLockWithX();
