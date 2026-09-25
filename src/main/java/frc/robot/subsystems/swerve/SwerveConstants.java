@@ -26,7 +26,7 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.swerve.Swerve.WantedState;
+import frc.robot.subsystems.orca.Orca.WantedState;
 
 public class SwerveConstants {
 
