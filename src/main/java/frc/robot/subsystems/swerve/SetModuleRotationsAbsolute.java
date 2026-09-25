@@ -31,9 +31,9 @@ public class SetModuleRotationsAbsolute implements SwerveRequest {
       final SwerveModule<?, ?, ?> module = modulesToApply[i];
 
       final Rotation2d wantedRotation = moduleRotations[i];
-      // calculateModuleRotation(module.getCurrentState().angle, moduleRotations[i]);
+      var rot = calculateModuleRotation(module.getCurrentState().angle, moduleRotations[i]);
 
-      module.apply(moduleRequest.withState(new SwerveModuleState(0, wantedRotation)));
+      module.apply(moduleRequest.withState(new SwerveModuleState(0, rot)));
     }
 
     return StatusCode.OK;
