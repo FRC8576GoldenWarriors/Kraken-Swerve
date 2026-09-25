@@ -12,7 +12,6 @@ import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.utility.PhoenixPIDController;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -127,7 +126,9 @@ public class Swerve extends SubsystemBase {
   public Swerve(SwerveIO io) {
     this.io = io;
 
-    rotationLockRequest.HeadingController = new PhoenixPIDController(SwerveConstants.ROTATION_KP, SwerveConstants.ROTATION_KI, SwerveConstants.ROTATION_KD);
+    rotationLockRequest.HeadingController =
+        new PhoenixPIDController(
+            SwerveConstants.ROTATION_KP, SwerveConstants.ROTATION_KI, SwerveConstants.ROTATION_KD);
 
     rotationLockRequest.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
 
